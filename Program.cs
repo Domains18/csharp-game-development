@@ -8,7 +8,6 @@ class Program
     {
         Console.CursorVisible = false; //hide the blinking cursor
         Console.SetWindowSize(50, 22);
-        Console.SetBufferSize(50, 22);
 
         Game game = new Game();
         while (game.IsRunning)
@@ -57,29 +56,28 @@ class Game
     {
 
         player = new Player { X = 10, Y = 5 };
+        coin = new Coin { X = random.Next(ArenaLeft + ArenaWidth + ArenaLeft), Y = random.Next(ArenaTop, ArenaHeight + ArenaTop) };
         RespawnCoin();
         score = 0;
     }
 
     public void Run()
     {
-        stopwatch.Start();
-        while (IsRunning)
+        float frameTime = (float)stopwatch.Elapsed.TotalSeconds;
+        stopwatch.Restart();
+
+        if (frameTime > 0.25f) frameTime = 0.25f;
+
+        accumulator += frameTime;
+        //fixed timestep: run physics at consistent rate
+        while (accumulator >= FixedDeltaTime)
         {
-            float frameTime = (float)stopwatch.Elapsed.TotalSeconds;
-            stopwatch.Restart();
-
-            //fixed timestep: run physics at consistent rate
-            while (accumulator >= FixedDeltaTime)
-            {
-                HandleInput();
-                Update(FixedDeltaTime);
-                accumulator -= FixedDeltaTime;
-            }
-
-            Render();
+            HandleInput();
+            Update(FixedDeltaTime);
+            accumulator -= FixedDeltaTime;
         }
-        ;
+
+        Render();
     }
 
     public void Stop()
@@ -93,12 +91,11 @@ class Game
         player.XVelocity = 0;
         player.YVelocity = 0;
 
-        if (!Console.KeyAvailable)
+        if (Console.KeyAvailable)
         {
             ConsoleKeyInfo keyInfo = Console.ReadKey(true);
             ConsoleKey key = keyInfo.Key;
 
-            while (Console.KeyAvailable) Console.ReadKey(true);
             switch (key)
             {
                 case ConsoleKey.UpArrow: player.YVelocity = -Player.Speed; break;
@@ -149,23 +146,45 @@ class Game
 
     private void Render()
     {
-        Console.Clear();
         Console.SetCursorPosition(0, 0);
+        Console.WriteLine("╔══════════════════════════════════════════════╗");
+        Console.WriteLine($"║  SCORE: {score,-4}  Arrows to move  Q to quit ║");
+        Console.WriteLine("╚══════════════════════════════════════════════╝");
 
-        Console.WriteLine("================Press Q to quit==================");
-        Console.WriteLine($"this is your score: {score}");
-        Console.WriteLine("===============================================");
-
-        for (int y = 0; y < GridHeight; y++)
+        for (int y = 0; y < ArenaTop + ArenaHeight; y++)
         {
-            for (int x = 0; x < GridWidth; x++)
+            for (int x = 0; x < ArenaLeft + ArenaWidth + 2; x++)
             {
-                if (x == player.X && y == player.Y) { Console.Write("@"); }
-                else if (coin.X == x && coin.Y == y) { Console.Write("*"); }
-                else Console.Write(".");
+                bool isleftBorder = x == ArenaLeft - 1 && y >= ArenaTop && y < ArenaTop + ArenaHeight;
+                bool isRightBorder = x == ArenaLeft + ArenaWidth && y >= ArenaTop && y < ArenaTop + ArenaHeight;
+                bool isTopBorder = y == ArenaTop - 1 && x >= ArenaLeft && x < ArenaLeft + ArenaWidth;
+                bool isBottomBorder = y == ArenaTop + ArenaHeight && x >= ArenaLeft && x < ArenaLeft + ArenaWidth;
+                bool isCorner = (x == ArenaLeft - 1 || x == ArenaLeft + ArenaWidth) && (y == ArenaTop - 1 || y == ArenaTop + ArenaHeight);
+                bool insideArena = x >= ArenaLeft && x < ArenaLeft + ArenaWidth && y >= ArenaTop && y < ArenaTop + ArenaHeight;
 
+                int playerintX = (int)Math.Round(player.X);
+                int playerintY = (int)Math.Round(player.Y);
+
+                if (isCorner)
+                    Console.Write("╬");
+                else if (isleftBorder || isRightBorder)
+                    Console.Write("║");
+                else if (isTopBorder || isBottomBorder)
+                    Console.Write("═");
+                else if (insideArena)
+                {
+                    if (x == playerintX && y == playerintY)
+                        Console.Write("☻");  // Player
+                    else if (x == coin.X && y == coin.Y)
+                        Console.Write("◆");  // Coin
+                    else
+                        Console.Write(" ");   // Empty space
+                }
+                else
+                {
+                    Console.Write(" ");
+                }
             }
-
             Console.WriteLine();
         }
     }
