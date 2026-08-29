@@ -158,33 +158,6 @@ class Game
             RespawnCoin();
         }
     }
-    private void Update(float dt)
-    {
-        //apply velocity: position += velocity *time;
-        player.X += player.XVelocity * dt;
-        player.Y += player.YVelocity * dt;
-
-        //arena bounds
-        float minX = ArenaLeft;
-        float maxX = ArenaLeft + ArenaWidth - 1;
-        float minY = ArenaTop;
-        float maxY = ArenaTop + ArenaHeight - 1;
-
-        if (player.X < minX) player.X = minX;
-        if (player.X > maxX) player.X = maxX;
-        if (player.Y < minY) player.Y = minY;
-        if (player.Y > maxY) player.Y = maxY;
-
-        int playerIntX = (int)Math.Round(player.X);
-        int playerIntY = (int)Math.Round(player.Y);
-
-
-        if (playerIntX == coin.X && playerIntY == coin.Y)
-        {
-            score++;
-            RespawnCoin();
-        }
-    }
 
     private void RespawnCoin()
     {
