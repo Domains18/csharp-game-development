@@ -32,7 +32,7 @@ fn spawn_player(
     let body_material = materials.add(StandardMaterial {
         base_color: Color::srgb(0.9, 0.3, 0.1), // Red/orange buggy
         metallic: 0.3,
-        roughness: 0.4,
+        perceptual_roughness: 0.5,
         ..default()
     });
 
@@ -41,24 +41,21 @@ fn spawn_player(
     let cage_material = materials.add(StandardMaterial {
         base_color: Color::srgb(0.2, 0.2, 0.2),
         metallic: 0.8,
-        roughness: 0.2,
+        perceptual_roughness: 0.2,
         ..default()
     });
 
     let wheel_mesh = meshes.add(Cylinder::new(0.3, 0.25));
     let wheel_material = materials.add(StandardMaterial {
         base_color: Color::srgb(0.1, 0.1, 0.1),
-        roughness: 0.9,
+        perceptual_roughness: 0.9,
         ..default()
     });
 
     commands.spawn((
-        PbrBundle {
-            mesh: body_mesh,
-            material: body_material,
-            transform: Transform::from_xyz(0.0, 0.8, 0.0),
-            ..default()
-        },
+        Mesh3d(body_mesh),
+        MeshMaterial3d(body_material),
+        Transform::from_xyz(0.0, 0.8, 0.0),
         Player {
             speed: 0.0,
             max_speed: 25.0,
@@ -71,8 +68,8 @@ fn spawn_player(
     .with_children(|parent| {
         // Roll cage
         parent.spawn(PbrBundle {
-            mesh: cage_mesh,
-            material: cage_material,
+            mesh: Mesh3d(cage_mesh),
+            material: MeshMaterial3d(cage_material),
             transform: Transform::from_xyz(0.0, 0.55, -0.2),
             ..default()
         });
@@ -88,8 +85,8 @@ fn spawn_player(
         for pos in wheel_positions {
             parent.spawn((
                 PbrBundle {
-                    mesh: wheel_mesh.clone(),
-                    material: wheel_material.clone(),
+                    mesh: Mesh3d(wheel_mesh.clone()),
+                    material: MeshMaterial3d(wheel_material.clone()),
                     transform: Transform::from_xyz(pos.0, pos.1, pos.2)
                         .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2)),
                     ..default()
