@@ -67,12 +67,11 @@ fn spawn_player(
     ))
     .with_children(|parent| {
         // Roll cage
-        parent.spawn(PbrBundle {
-            mesh: Mesh3d(cage_mesh),
-            material: MeshMaterial3d(cage_material),
-            transform: Transform::from_xyz(0.0, 0.55, -0.2),
-            ..default()
-        });
+        parent.spawn((
+            Mesh3d(cage_mesh),
+            MeshMaterial3d(cage_material),
+            Transform::from_xyz(0.0, 0.55, -0.2),
+        ));
 
         // Wheels
         let wheel_positions = [
@@ -84,13 +83,10 @@ fn spawn_player(
 
         for pos in wheel_positions {
             parent.spawn((
-                PbrBundle {
-                    mesh: Mesh3d(wheel_mesh.clone()),
-                    material: MeshMaterial3d(wheel_material.clone()),
-                    transform: Transform::from_xyz(pos.0, pos.1, pos.2)
-                        .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2)),
-                    ..default()
-                },
+                Mesh3d(wheel_mesh.clone()),
+                MeshMaterial3d(wheel_material.clone()),
+                Transform::from_xyz(pos.0, pos.1, pos.2)
+                    .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2)),
                 Wheel,
             ));
         }
@@ -137,8 +133,8 @@ fn player_input(
         
         // Rotate velocity direction
         let forward = Vec3::Z;
-        let right = Vec3::X;
-        let current_dir = forward * player.speed.signum();
+        let _right = Vec3::X;
+        let _current_dir = forward * player.speed.signum();
         
         // Simple arcade steering: rotate the velocity vector
         let rotation_quat = Quat::from_rotation_y(rotation * player.speed.signum());
@@ -202,7 +198,7 @@ fn update_wheels(
 }
 
 // Simple terrain height function
-fn get_ground_height(x: f32, z: f32) -> f32 {
+pub fn get_ground_height(x: f32, z: f32) -> f32 {
     let noise = (x * 0.1).sin() * (z * 0.1).cos() * 0.5;
     noise + 0.3 * ((x * 0.05).sin() + (z * 0.05).cos())
 }

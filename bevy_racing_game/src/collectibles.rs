@@ -1,13 +1,13 @@
-use bevy::prelude::*;
 use crate::player::Player;
 use crate::Score;
+use bevy::prelude::*;
 
 pub struct CollectiblesPlugin;
 
 impl Plugin for CollectiblesPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_coins)
-           .add_systems(Update, (rotate_coins, check_collection, spawn_boost_pads));
+            .add_systems(Update, (rotate_coins, check_collection, spawn_boost_pads));
     }
 }
 
@@ -35,23 +35,28 @@ fn spawn_coins(
     });
 
     let positions = [
-        (3.0, 3.0), (-5.0, 8.0), (10.0, -5.0),
-        (-8.0, -8.0), (15.0, 15.0), (-15.0, 10.0),
-        (0.0, 20.0), (20.0, -10.0), (-20.0, -5.0),
-        (8.0, -15.0), (-10.0, 18.0), (25.0, 5.0),
+        (3.0, 3.0),
+        (-5.0, 8.0),
+        (10.0, -5.0),
+        (-8.0, -8.0),
+        (15.0, 15.0),
+        (-15.0, 10.0),
+        (0.0, 20.0),
+        (20.0, -10.0),
+        (-20.0, -5.0),
+        (8.0, -15.0),
+        (-10.0, 18.0),
+        (25.0, 5.0),
     ];
 
     for (i, (x, z)) in positions.iter().enumerate() {
         let y = crate::player::get_ground_height(*x, *z);
-        
+
         commands.spawn((
-            PbrBundle {
-                mesh: Mesh3d(coin_mesh.clone()),
-                material: MeshMaterial3d(coin_material.clone()),
-                transform: Transform::from_xyz(*x, y + 1.0, *z)
-                    .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
-                ..default()
-            },
+            Mesh3d(coin_mesh.clone()),
+            MeshMaterial3d(coin_material.clone()),
+            Transform::from_xyz(*x, y + 1.0, *z)
+                .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
             Coin {
                 base_y: y + 1.0,
                 bob_offset: i as f32 * 0.5,
@@ -60,14 +65,11 @@ fn spawn_coins(
     }
 }
 
-fn rotate_coins(
-    mut coins: Query<(&mut Transform, &Coin)>,
-    time: Res<Time>,
-) {
+fn rotate_coins(mut coins: Query<(&mut Transform, &Coin)>, time: Res<Time>) {
     for (mut transform, coin) in &mut coins {
         // Spin
         transform.rotate_y(3.0 * time.delta_secs());
-        
+
         // Bob up and down
         let bob = (time.elapsed_secs() * 3.0 + coin.bob_offset).sin() * 0.2;
         transform.translation.y = coin.base_y + bob;
@@ -80,10 +82,14 @@ fn check_collection(
     coin_query: Query<(Entity, &Transform), With<Coin>>,
     mut score: ResMut<Score>,
 ) {
-    let Ok(player_transform) = player_query.get_single() else { return };
+    let Ok(player_transform) = player_query.get_single() else {
+        return;
+    };
 
     for (coin_entity, coin_transform) in &coin_query {
-        let distance = player_transform.translation.distance(coin_transform.translation);
+        let distance = player_transform
+            .translation
+            .distance(coin_transform.translation);
         if distance < 1.2 {
             commands.entity(coin_entity).despawn();
             score.coins += 1;
@@ -110,12 +116,9 @@ fn spawn_boost_pads(
     for (x, z) in positions {
         let y = crate::player::get_ground_height(x, z);
         commands.spawn((
-            PbrBundle {
-                mesh: Mesh3d(pad_mesh.clone()),
-                material: MeshMaterial3d(pad_material.clone()),
-                transform: Transform::from_xyz(x, y + 0.05, z),
-                ..default()
-            },
+            Mesh3d(pad_mesh.clone()),
+            MeshMaterial3d(pad_material.clone()),
+            Transform::from_xyz(x, y + 0.05, z),
             BoostPad,
         ));
     }

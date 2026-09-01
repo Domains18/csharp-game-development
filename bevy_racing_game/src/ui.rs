@@ -21,94 +21,88 @@ struct ScoreText;
 struct TimeText;
 
 fn setup_ui(mut commands: Commands) {
-    commands.spawn(
-        TextBundle::from_section(
-            "Beach Buggy Racing",
-            TextStyle {
-                font_size: 40.0,
-                color: Color::srgb(1.0, 0.9, 0.2),
-                ..default()
-            },
-        )
-        .with_style(Style {
-            position_type: PositionType::Absolute,
-            top: Val::Px(10.0),
-            left: Val::Px(10.0),
-            ..default()
-        }),
-    );
-
+    // Title
     commands.spawn((
-        TextBundle::from_section(
-            "Speed: 0 km/h",
-            TextStyle {
-                font_size: 24.0,
-                color: Color::WHITE,
-                ..default()
-            },
-        )
-        .with_style(Style {
-            position_type: PositionType::Absolute,
-            top: Val::Px(60.0),
-            left: Val::Px(10.0),
+        Text::new("Beach Buggy Racing"),
+        TextFont {
+            font_size: 40.0,
             ..default()
-        }),
+        },
+        TextColor(Color::srgb(1.0, 0.9, 0.2)),
+        // Style {
+        //     position_type: PositionType::Absolute,
+        //     top: Val::Px(10.0),
+        //     left: Val::Px(10.0),
+        //     ..default()
+        // },
+    ));
+
+    // Speed Text
+    commands.spawn((
+        Text::new("Speed: 0 km/h"),
+        TextFont {
+            font_size: 24.0,
+            ..default()
+        },
+        TextColor(Color::WHITE),
+        // Style {
+        //     position_type: PositionType::Absolute,
+        //     top: Val::Px(60.0),
+        //     left: Val::Px(10.0),
+        //     ..default()
+        // },
         SpeedText,
     ));
 
+    // Score Text
     commands.spawn((
-        TextBundle::from_section(
-            "Coins: 0",
-            TextStyle {
-                font_size: 24.0,
-                color: Color::srgb(1.0, 0.84, 0.0),
-                ..default()
-            },
-        )
-        .with_style(Style {
-            position_type: PositionType::Absolute,
-            top: Val::Px(90.0),
-            left: Val::Px(10.0),
+        Text::new("Coins: 0"),
+        TextFont {
+            font_size: 24.0,
             ..default()
-        }),
+        },
+        TextColor(Color::srgb(1.0, 0.84, 0.0)),
+        // Style {
+        //     position_type: PositionType::Absolute,
+        //     top: Val::Px(90.0),
+        //     left: Val::Px(10.0),
+        //     ..default()
+        // },
         ScoreText,
     ));
 
+    // Time Text
     commands.spawn((
-        TextBundle::from_section(
-            "Time: 0.0s",
-            TextStyle {
-                font_size: 24.0,
-                color: Color::WHITE,
-                ..default()
-            },
-        )
-        .with_style(Style {
-            position_type: PositionType::Absolute,
-            top: Val::Px(120.0),
-            left: Val::Px(10.0),
+        Text::new("Time: 0.0s"),
+        TextFont {
+            font_size: 24.0,
             ..default()
-        }),
+        },
+        TextColor(Color::WHITE),
+        // Style {
+        //     position_type: PositionType::Absolute,
+        //     top: Val::Px(120.0),
+        //     left: Val::Px(10.0),
+        //     ..default()
+        // },
         TimeText,
     ));
 
     // Controls hint
-    commands.spawn(
-        TextBundle::from_section(
-            "WASD / Arrows to drive",
-            TextStyle {
-                font_size: 16.0,
-                color: Color::srgb(0.8, 0.8, 0.8),
-                ..default()
-            },
-        )
-        .with_style(Style {
-            position_type: PositionType::Absolute,
-            bottom: Val::Px(10.0),
-            left: Val::Px(10.0),
+    commands.spawn((
+        Text::new("WASD / Arrows to drive"),
+        TextFont {
+            font_size: 16.0,
             ..default()
-        }),
-    );
+        },
+        TextColor(Color::srgb(0.8, 0.8, 0.8)),
+        // Style {
+        //     position_type: PositionType::Absolute,
+        //     bottom: Val::Px(10.0),
+        //     left: Val::Px(10.0),
+        //     ..default()
+        // },
+    ));
 }
 
 fn update_ui(
@@ -124,15 +118,16 @@ fn update_ui(
     if let Ok(player) = player_query.get_single() {
         if let Ok(mut text) = speed_text.get_single_mut() {
             let kmh = (player.speed * 3.6).abs();
-            text.sections[0].value = format!("Speed: {:.0} km/h", kmh);
+            // In Bevy 0.15+, Text is a tuple struct wrapping a String. Mutate .0 directly.
+            text.0 = format!("Speed: {:.0} km/h", kmh);
         }
     }
 
     if let Ok(mut text) = score_text.get_single_mut() {
-        text.sections[0].value = format!("Coins: {}", score.coins);
+        text.0 = format!("Coins: {}", score.coins);
     }
 
     if let Ok(mut text) = time_text.get_single_mut() {
-        text.sections[0].value = format!("Time: {:.1}s", score.time);
+        text.0 = format!("Time: {:.1}s", score.time);
     }
 }

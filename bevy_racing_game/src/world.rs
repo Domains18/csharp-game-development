@@ -22,12 +22,11 @@ fn spawn_terrain(
         ..default()
     });
 
-    commands.spawn(PbrBundle {
-        mesh: Mesh3d(sand_mesh),
-        material: MeshMaterial3d(sand_material),
-        transform: Transform::from_xyz(0.0, 0.0, 0.0),
-        ..default()
-    });
+    commands.spawn((
+        Mesh3d(sand_mesh),
+        MeshMaterial3d(sand_material),
+        Transform::from_xyz(0.0, 0.0, 0.0),
+    ));
 
     // Water plane
     let water_mesh = meshes.add(Plane3d::new(Vec3::Y, Vec2::new(200.0, 200.0)));
@@ -39,12 +38,11 @@ fn spawn_terrain(
         ..default()
     });
 
-    commands.spawn(PbrBundle {
-        mesh: Mesh3d(water_mesh),
-        material: MeshMaterial3d(water_material),
-        transform: Transform::from_xyz(0.0, -0.5, 0.0),
-        ..default()
-    });
+    commands.spawn((
+        Mesh3d(water_mesh),
+        MeshMaterial3d(water_material),
+        Transform::from_xyz(0.0, -0.5, 0.0),
+    ));
 }
 
 fn spawn_palm_trees(
@@ -76,25 +74,23 @@ fn spawn_palm_trees(
     for (x, z) in positions {
         let y = crate::player::get_ground_height(x, z);
 
-        commands.spawn(PbrBundle {
-            mesh: Mesh3d(trunk_mesh.clone()),
-            material: MeshMaterial3d(trunk_material.clone()),
-            transform: Transform::from_xyz(x, y + 1.25, z),
-            ..default()
-        });
+        commands.spawn((
+            Mesh3d(trunk_mesh.clone()),
+            MeshMaterial3d(trunk_material.clone()),
+            Transform::from_xyz(x, y + 1.25, z),
+        ));
 
         // Leaves
         for i in 0..4 {
             let angle = (i as f32) * std::f32::consts::FRAC_PI_2;
             let offset = Vec3::new(angle.cos() * 0.5, 0.0, angle.sin() * 0.5);
             
-            commands.spawn(PbrBundle {
-                mesh: Mesh3d(leaf_mesh.clone()),
-                material: MeshMaterial3d(leaf_material.clone()),
-                transform: Transform::from_xyz(x + offset.x, y + 2.5, z + offset.z)
+            commands.spawn((
+                Mesh3d(leaf_mesh.clone()),
+                MeshMaterial3d(leaf_material.clone()),
+                Transform::from_xyz(x + offset.x, y + 2.5, z + offset.z)
                     .with_rotation(Quat::from_rotation_x(0.3)),
-                ..default()
-            });
+            ));
         }
     }
 }
@@ -118,12 +114,12 @@ fn spawn_rocks(
 
     for (x, z) in positions {
         let y = crate::player::get_ground_height(x, z);
-        commands.spawn(PbrBundle {
-            mesh: Mesh3d(rock_mesh.clone()),
-            material: MeshMaterial3d(rock_material.clone()),
-            transform: Transform::from_xyz(x, y + 0.4, z)
-                .with_scale(Vec3::new(1.0 + (x % 3) as f32 * 0.3, 0.8, 1.0)),
-            ..default()
-        });
+        
+        commands.spawn((
+            Mesh3d(rock_mesh.clone()),
+            MeshMaterial3d(rock_material.clone()),
+            Transform::from_xyz(x, y + 0.4, z)
+                .with_scale(Vec3::new(1.0 + ((x as i32 % 3) as f32 * 0.3), 0.8, 1.0)),
+        ));
     }
 }
